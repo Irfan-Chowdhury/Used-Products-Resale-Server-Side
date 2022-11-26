@@ -60,6 +60,14 @@ async function run() {
             res.send(result);
         });
 
+        // Show By Id
+        app.get('/categories/:id', async (req, res) => {
+            const id =  req.params.id;
+            const query = {_id: ObjectId(id) }
+            const category = await categoriesCollection.findOne(query);
+            res.send(category);
+        });
+
 
         /**
          * ==========================================
@@ -67,21 +75,30 @@ async function run() {
          * ==========================================
          */
 
+        // Get all-available-products
+        app.get('/all-available-products', async (req, res) => {
+            const query = {status:0}
+            const products = await productsCollection.find(query).toArray();
+            res.send(products);
+        });
+        // Get all-available-&-advertise-products
+        app.get('/all-available-and-advertise-products', async (req, res) => {
+            const query = {status:0,advertise:0}
+            const products = await productsCollection.find(query).sort({"_id":-1}).toArray(); //desending
+            res.send(products);
+        });
+
         // Store
         app.post('/products', async (req, res) => {
             const product = req.body;
             console.log(product);
             const result = await productsCollection.insertOne(product);
             res.send(result);
-        });
+        }); 
 
         // Get data by email
         app.get('/products', async (req, res) => {
             const email = req.query.seller_email;
-            // const decodedEmail = req.decoded.seller_email;
-            // if (email !== decodedEmail) {
-            //     return res.status(403).send({ message: 'forbidden access' });
-            // }
             const query = { seller_email: email };
             const products = await productsCollection.find(query).toArray();
             console.log(products); 
