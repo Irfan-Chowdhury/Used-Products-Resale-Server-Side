@@ -4,7 +4,7 @@
 </div>
 
 
-## `Setup Procedure in vercel`
+## `Hosting Procedure in vercel`
 
 #### 1. Update `package.json` file
 ```bash
