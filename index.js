@@ -39,7 +39,7 @@ async function run() {
         //     const options = { upsert: true }
         //     const updatedDoc = {
         //         $set: {
-        //             advertise: 0
+        //             seller_verify: 0
         //         }
         //     }
         //     const result = await productsCollection.updateMany(filter, updatedDoc, options);
@@ -129,7 +129,6 @@ async function run() {
         })
 
 
-
         /**
          * ==========================================
          *    User Section
@@ -142,6 +141,49 @@ async function run() {
             console.log(user);
             const result = await usersCollection.insertOne(user);
             res.send(result);
+        });
+
+        // Get all-sellers
+        app.get('/all-sellers', async (req, res) => {
+            const query = {role:'seller'}
+            const users = await usersCollection.find(query).toArray();
+            res.send(users);
+        });
+
+        // Make Verify Seller
+        app.put('/all-sellers/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            const seller = req.body;
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    verify: seller.verify
+                }
+            }
+            const result = await usersCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+        });
+
+        // Delete User
+        app.delete('/users/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const result = await usersCollection.deleteOne(filter);
+            res.send(result);
+        });
+
+        /**
+         * ==========================================
+         *    Buyer Section
+         * ==========================================
+         */
+
+        // Get all-Buyers
+        app.get('/all-buyers', async (req, res) => {
+            const query = {role:'buyer'}
+            const users = await usersCollection.find(query).toArray();
+            res.send(users);
         });
 
 
