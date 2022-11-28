@@ -222,12 +222,36 @@ async function run() {
             res.send(orders);
         });
 
+        // Get Order lists By Email
+        app.get('/orders/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = {buyer_email:email}
+            const orders = await ordersCollection.find(query).toArray();
+            res.send(orders);
+        });
+
         // Order Store
         app.post('/orders', async (req, res) => {
             const order = req.body;
             const result = await ordersCollection.insertOne(order);
             res.send(result);
         });
+
+        /**
+         * ==========================================
+         *    Buyer Section
+         * ==========================================
+         */
+
+        // fetch Specific to Buyer Check 
+        app.get('/users/buyer/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email }
+            const user = await usersCollection.findOne(query);
+            res.send({ isBuyer: user?.role === 'buyer' });
+        });
+
+
 
     }
     finally {
