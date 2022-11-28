@@ -63,3 +63,8 @@ vercel
 
 - Then it takes few seconds, then you will get a production link like https://xyz-server.vercel.app/ and check in browser.
 
+- Then after any changing, every time you have to use this command -
+    ```bash
+    vercel --prod
+    ```
+
