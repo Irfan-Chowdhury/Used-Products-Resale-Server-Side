@@ -215,14 +215,19 @@ async function run() {
          * ==========================================
          */
 
-        // User Create
+        // Order Get
+        app.get('/orders', async (req, res) => {
+            const query = {}
+            const orders = await ordersCollection.find(query).toArray();
+            res.send(orders);
+        });
+
+        // Order Store
         app.post('/orders', async (req, res) => {
             const order = req.body;
             const result = await ordersCollection.insertOne(order);
             res.send(result);
         });
-
-
 
     }
     finally {
