@@ -21,6 +21,7 @@ async function run() {
         const categoriesCollection = client.db('eRecycleProducts').collection('categories');
         const usersCollection = client.db('eRecycleProducts').collection('users');
         const productsCollection = client.db('eRecycleProducts').collection('products');
+        const ordersCollection = client.db('eRecycleProducts').collection('orders');
 
         /**
          * -----------------------------------
@@ -192,13 +193,34 @@ async function run() {
          * ==========================================
          */
 
-        // fetch Admin
+        // fetch Specific to Admin Check 
         app.get('/users/admin/:email', async (req, res) => {
             const email = req.params.email;
             const query = { email }
             const user = await usersCollection.findOne(query);
             res.send({ isAdmin: user?.role === 'admin' });
-        })
+        });
+
+        // fetch Specific to Seller Check 
+        app.get('/users/seller/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email }
+            const seller = await usersCollection.findOne(query);
+            res.send(seller);
+        });
+
+        /**
+         * ==========================================
+         *    Order Section
+         * ==========================================
+         */
+
+        // User Create
+        app.post('/orders', async (req, res) => {
+            const order = req.body;
+            const result = await ordersCollection.insertOne(order);
+            res.send(result);
+        });
 
 
 
