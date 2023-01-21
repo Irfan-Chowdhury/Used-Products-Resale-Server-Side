@@ -22,6 +22,7 @@ async function run() {
         const usersCollection = client.db('eRecycleProducts').collection('users');
         const productsCollection = client.db('eRecycleProducts').collection('products');
         const ordersCollection = client.db('eRecycleProducts').collection('orders');
+        const wishlistsCollection = client.db('eRecycleProducts').collection('wishlists');
 
         /**
          * -----------------------------------
@@ -136,6 +137,13 @@ async function run() {
          * ==========================================
          */
 
+        // Get All Users
+        app.get('/users', async (req, res) => {
+            const query = {}
+            const users = await usersCollection.find(query).toArray();
+            res.send(users);
+        });
+
         // User Create
         app.post('/users', async (req, res) => {
             const user = req.body;
@@ -222,6 +230,13 @@ async function run() {
             res.send(orders);
         });
 
+        // Order Store
+        app.post('/orders', async (req, res) => {
+            const order = req.body;
+            const result = await ordersCollection.insertOne(order);
+            res.send(result);
+        });
+
         // Get Order lists By Email
         app.get('/orders/:email', async (req, res) => {
             const email = req.params.email;
@@ -230,10 +245,40 @@ async function run() {
             res.send(orders);
         });
 
-        // Order Store
-        app.post('/orders', async (req, res) => {
+        // Show Order By Id
+        app.get('/orders/checkout/:id', async (req, res) => {
+            const id =  req.params.id;
+            const query = {_id: ObjectId(id) }
+            const order = await ordersCollection.findOne(query);
+            res.send(order);
+        });
+
+        // Order Update By Id
+        app.put('/orders/checkout/:id', async (req, res) => {
+            const id =  req.params.id;
+            const filter = {_id: ObjectId(id)};
             const order = req.body;
-            const result = await ordersCollection.insertOne(order);
+            const option = {upsert:true};
+            const updateOrder = {
+                $set : {
+                    payment_status: order.payment_status,
+                    payment_method: order.payment_method,
+                    card_number: order.card_number,
+                    product_title: order.product_title,
+                    date_format_cbc: order.date_format_cbc,
+                }
+            }
+            const result = await ordersCollection.updateOne(filter, updateOrder,option);
+
+            // Update Product
+            const productFilter = {_id: ObjectId(order.product_id)};
+            const productOption = {upsert:true};
+            const updateProduct = {
+                $set : {
+                    status: 1,
+                }
+            }
+            const resultProduct = await productsCollection.updateOne(productFilter, updateProduct,productOption);
             res.send(result);
         });
 
@@ -251,12 +296,36 @@ async function run() {
             res.send({ isBuyer: user?.role === 'buyer' });
         });
 
+        /**
+         * ==========================================
+         *    Wishlist Section
+         * ==========================================
+         */
 
+        // Wishlist Store
+        app.post('/wishlists', async (req, res) => {
+            const wishlist = req.body;
+            const result = await wishlistsCollection.insertOne(wishlist);
+            res.send(result);
+        });
 
+        // Get Wishlists By Email
+        app.get('/wishlists/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = {buyer_email:email}
+            const wishlists = await wishlistsCollection.find(query).toArray();
+            res.send(wishlists);
+        });
+
+        // Delete Wishlist
+        app.delete('/wishlists/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const result = await wishlistsCollection.deleteOne(filter);
+            res.send(result);
+        });
     }
-    finally {
-
-    }
+    finally {}
 }
 run().catch(console.log);
 
